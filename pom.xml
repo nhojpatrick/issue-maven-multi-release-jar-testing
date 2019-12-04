@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.github.nhojpatrick.issues</groupId>
+	<artifactId>issue-maven-multi-release-jar-testing</artifactId>
+	<version>1</version>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.8.1</version>
+					<executions>
+						<execution>
+							<id>java11</id>
+							<phase>compile</phase>
+							<goals>
+								<goal>compile</goal>
+							</goals>
+							<configuration>
+								<release>11</release>
+								<jdkToolchain>
+									<version>11</version>
+								</jdkToolchain>
+								<compileSourceRoots>
+									<compileSourceRoot>${project.basedir}/src/main/java11</compileSourceRoot>
+								</compileSourceRoots>
+								<multiReleaseOutput>true</multiReleaseOutput>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>3.1.2</version>
+					<configuration>
+						<archive>
+							<manifestEntries>
+								<Automatic-Module-Name>${project.Automatic-Module-Name}</Automatic-Module-Name>
+								<Multi-Release>true</Multi-Release>
+							</manifestEntries>
+						</archive>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.22.2</version>
+					<configuration>
+						<argLine>${project.surefire.argLine.jpms}</argLine>
+						<excludes>
+							<exclude>**/*IT.java</exclude>
+						</excludes>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-toolchains-plugin</artifactId>
+					<version>1.1</version>
+					<configuration>
+						<toolchains>
+							<jdk>
+								<version>${base.java.version}</version>
+								<vendor>${toolchain.vendor}</vendor>
+							</jdk>
+						</toolchains>
+					</configuration>
+					<executions>
+						<execution>
+							<goals>
+								<goal>toolchain</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+	<profiles>
+		<profile>
+			<id>java11</id>
+			<activation>
+				<jdk>[11,)</jdk>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<!-- mainly so IntelliJ or other IDE's add they source directory to the IDE project -->
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>add-source-java11</id>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>add-source</goal>
+								</goals>
+								<configuration>
+									<sources>
+										<source>${project.basedir}/src/main/java11</source>
+									</sources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+			<properties>
+				<base.java.version>11</base.java.version>
+				<maven.compiler.release>11</maven.compiler.release>
+				<project.custom.java.version>11</project.custom.java.version>
+				<project.failsafe.argLine.jpms>${project.failsafe.argLine.jpms.global} ${project.failsafe.argLine.jpms.module}</project.failsafe.argLine.jpms>
+				<project.surefire.argLine.jpms>${project.surefire.argLine.jpms.global} ${project.surefire.argLine.jpms.module}</project.surefire.argLine.jpms>
+			</properties>
+		</profile>
+	</profiles>
+	<dependencies>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest</artifactId>
+			<version>2.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>5.5.2</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<properties>
+		<!-- custom properties -->
+		<project.custom.encoding>UTF-8</project.custom.encoding>
+		<project.custom.java.version>1.8</project.custom.java.version>
+		<!-- override maven properties -->
+		<maven.test.failure.ignore>false</maven.test.failure.ignore>
+		<maven.compiler.source>${project.custom.java.version}</maven.compiler.source>
+		<maven.compiler.target>${project.custom.java.version}</maven.compiler.target>
+		<project.build.sourceEncoding>${project.custom.encoding}</project.build.sourceEncoding>
+		<project.build.outputEncoding>${project.custom.encoding}</project.build.outputEncoding>
+		<project.reporting.outputEncoding>${project.custom.encoding}</project.reporting.outputEncoding>
+		<!-- Surefire/Failsafe jpms override(s) -->
+		<project.failsafe.argLine.jpms></project.failsafe.argLine.jpms>
+		<project.failsafe.argLine.jpms.global>--add-opens ${project.Automatic-Module-Name}/${project.Automatic-Module-Name}.tests=ALL-UNNAMED</project.failsafe.argLine.jpms.global>
+		<project.failsafe.argLine.jpms.module></project.failsafe.argLine.jpms.module>
+		<project.surefire.argLine.jpms></project.surefire.argLine.jpms>
+		<project.surefire.argLine.jpms.global>--add-opens ${project.Automatic-Module-Name}/${project.Automatic-Module-Name}.tests=ALL-UNNAMED
+			--add-opens ${project.Automatic-Module-Name}/${project.Automatic-Module-Name}.tests=org.junit.platform.commons
+			--add-opens org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED
+			--add-opens org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED</project.surefire.argLine.jpms.global>
+		<project.surefire.argLine.jpms.module></project.surefire.argLine.jpms.module>
+		<!-- JPMS -->
+		<project.Automatic-Module-Name>com.github.nhojpatrick.issue.maven.multi.release.jar.testing</project.Automatic-Module-Name>
+		<toolchain.vendor>openjdk</toolchain.vendor>
+		<base.java.version>11</base.java.version>
+	</properties>
+</project>
