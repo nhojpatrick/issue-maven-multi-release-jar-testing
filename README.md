@@ -3,7 +3,7 @@
 
 Change toolchains.xml to match your Java 1.8 and Java 11 installation locations, the current should work if your using a Mac with Java 1.8.0 update 192 and Java 11.0.5.
 ```
-$ /mvnw -t toolchains.xml clean install
+$ /mvnw -t toolchains.xml clean verify
 ```
 
 # Expected output;

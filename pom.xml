@@ -13,10 +13,25 @@
 					<version>3.8.1</version>
 					<executions>
 						<execution>
-							<id>java11</id>
-							<phase>compile</phase>
+							<id>java11-compile</id>
 							<goals>
 								<goal>compile</goal>
+							</goals>
+							<configuration>
+								<release>11</release>
+								<jdkToolchain>
+								<version>11</version>
+								</jdkToolchain>
+								<compileSourceRoots>
+								<compileSourceRoot>${project.basedir}/src/main/java11</compileSourceRoot>
+								</compileSourceRoots>
+								<multiReleaseOutput>true</multiReleaseOutput>
+							</configuration>
+						</execution>
+						<execution>
+							<id>java11-testcompile</id>
+							<goals>
+								<goal>testCompile</goal>
 							</goals>
 							<configuration>
 								<release>11</release>
@@ -24,7 +39,7 @@
 									<version>11</version>
 								</jdkToolchain>
 								<compileSourceRoots>
-									<compileSourceRoot>${project.basedir}/src/main/java11</compileSourceRoot>
+									<compileSourceRoot>${project.basedir}/src/test/java11</compileSourceRoot>
 								</compileSourceRoots>
 								<multiReleaseOutput>true</multiReleaseOutput>
 							</configuration>
@@ -50,9 +65,6 @@
 					<version>2.22.2</version>
 					<configuration>
 						<argLine>${project.surefire.argLine.jpms}</argLine>
-						<excludes>
-							<exclude>**/*IT.java</exclude>
-						</excludes>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -84,29 +96,6 @@
 			<activation>
 				<jdk>[11,)</jdk>
 			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<!-- mainly so IntelliJ or other IDE's add they source directory to the IDE project -->
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>build-helper-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>add-source-java11</id>
-								<phase>generate-sources</phase>
-								<goals>
-									<goal>add-source</goal>
-								</goals>
-								<configuration>
-									<sources>
-										<source>${project.basedir}/src/main/java11</source>
-									</sources>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
 			<properties>
 				<base.java.version>11</base.java.version>
 				<maven.compiler.release>11</maven.compiler.release>
